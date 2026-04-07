@@ -46,4 +46,4 @@ Simulates IMU sensor data by generating randomized pitch and Y-axis values, and 
 
 ### Dashboard (index.html)
 A browser dashboard that polls the backend every 2 seconds and shows current posture status, session stats, slouch rate, and event history.
-UI generated with Claude AI (Anthropic).
+UI generated with Claude.
