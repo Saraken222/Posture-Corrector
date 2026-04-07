@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PostureOS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f0f4f8;
+      --surface: #ffffff;
+      --surface2: #e8eef5;
+      --border: #d1dce8;
+      --text: #0f1923;
+      --muted: #5a7490;
+      --accent: #0057ff;
+      --good: #00a651;
+      --bad: #e8173a;
+      --warn: #f59e0b;
+      --good-bg: #e6f7ee;
+      --bad-bg: #fdedf0;
+      --mono: 'Space Mono', monospace;
+      --sans: 'Space Grotesk', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 28px;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .logo-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -1px;
+    }
+
+    .logo-sub {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      padding: 8px 18px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .status-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--good);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,166,81,0.4); }
+      50% { opacity: 0.8; box-shadow: 0 0 0 5px rgba(0,166,81,0); }
+    }
+
+    .avatar-trigger {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      padding: 8px 18px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .avatar-trigger:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ALERT */
+    .alert-banner {
+      display: none;
+      background: var(--bad-bg);
+      border: 1.5px solid var(--bad);
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--bad);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .alert-banner.visible { display: block; }
+
+    /* HERO */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 200px;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .posture-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+      transition: background 0.4s, border-color 0.4s;
+    }
+
+    .posture-card.good { background: var(--good-bg); border-color: #b3e6ce; }
+    .posture-card.poor { background: var(--bad-bg); border-color: #f5b3bf; }
+
+    .posture-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .posture-icon { font-size: 52px; margin-bottom: 10px; }
+
+    .posture-value {
+      font-size: 72px;
+      font-weight: 700;
+      letter-spacing: -2px;
+      line-height: 1;
+      transition: color 0.4s;
+    }
+
+    .posture-value.good { color: var(--good); }
+    .posture-value.poor { color: var(--bad); animation: shake 0.25s infinite; }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      33% { transform: translateX(-3px); }
+      66% { transform: translateX(3px); }
+    }
+
+    /* SPINE */
+    .spine-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .spine-card-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .spine-svg { width: 90px; }
+
+    /* STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+    }
+
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: -2px;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .stat-unit {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* METER */
+    .meter-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+
+    .meter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 16px;
+    }
+
+    .meter-title {
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--text);
+    }
+
+    .meter-pct {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      color: var(--accent);
+    }
+
+    .meter-track {
+      height: 20px;
+      background: var(--surface2);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      height: 100%;
+      border-radius: 100px;
+      transition: width 0.8s cubic-bezier(0.4,0,0.2,1), background 0.5s;
+      background: var(--good);
+    }
+
+    .meter-fill.mid { background: var(--warn); }
+    .meter-fill.high { background: var(--bad); }
+
+    .meter-ticks {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* TIMELINE */
+    .timeline-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--text);
+    }
+
+    .timeline-legend {
+      display: flex;
+      gap: 16px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 2px;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    .timeline-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 90px;
+    }
+
+    .tbar {
+      flex: 1;
+      border-radius: 3px 3px 0 0;
+      transition: height 0.4s ease;
+      min-height: 4px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .tbar:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text);
+      color: white;
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .tbar.good { background: #86efac; }
+    .tbar.good:hover { background: var(--good); }
+    .tbar.bad { background: #fca5a5; }
+    .tbar.bad:hover { background: var(--bad); }
+
+    /* FOOTER */
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1.5px solid var(--border);
+      padding-top: 16px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .blink { animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* SIDEBAR */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,25,35,0.4);
+      z-index: 200;
+      backdrop-filter: blur(2px);
+    }
+    .sidebar-overlay.open { display: block; }
+
+    .sidebar {
+      position: fixed;
+      top: 0; right: -320px;
+      width: 300px;
+      height: 100vh;
+      background: var(--surface);
+      border-left: 1.5px solid var(--border);
+      z-index: 201;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+      overflow-y: auto;
+    }
+    .sidebar.open { right: 0; }
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sidebar-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.5px;
+    }
+
+    .sidebar-close {
+      background: var(--surface2);
+      border: none;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 16px;
+      width: 32px; height: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .sidebar-close:hover { background: var(--border); color: var(--text); }
+
+    .picker-section { display: flex; flex-direction: column; gap: 12px; }
+
+    .picker-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .picker-options { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .pick-btn {
+      background: var(--surface2);
+      border: 2px solid transparent;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 24px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      line-height: 1.2;
+    }
+    .pick-btn:hover { background: var(--bg); border-color: var(--border); }
+    .pick-btn.selected { border-color: var(--accent); background: #e8f0ff; }
+
+    .preview-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface2);
+      border-radius: 16px;
+      padding: 28px;
+    }
+
+    .preview-emoji { font-size: 64px; line-height: 1; }
+    .preview-label { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 2px; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div>
+      <div class="logo-title">PostureOS</div>
+      <div class="logo-sub">SPINAL INTELLIGENCE SYSTEM · v1.0</div>
+    </div>
+    <div class="header-right">
+      <button class="avatar-trigger" id="avatar-trigger" onclick="toggleSidebar()">
+        <span id="trigger-emoji">🧍</span>
+        <span>Avatar</span>
+      </button>
+      <div class="status-pill">
+        <div class="status-dot" id="conn-dot"></div>
+        <span id="conn-label">LIVE</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="alert-banner" id="alert-banner">⚠️ Poor posture detected — sit up straight!</div>
+
+  <div class="hero">
+    <div class="posture-card good" id="posture-card">
+      <div class="posture-label">Current Status</div>
+      <div class="posture-icon" id="posture-icon">🧍</div>
+      <div class="posture-value good" id="posture-value">GOOD</div>
+    </div>
+    <div class="spine-card">
+      <div class="spine-card-label">Spine</div>
+      <svg class="spine-svg" viewBox="0 0 80 200" xmlns="http://www.w3.org/2000/svg">
+        <g id="spine-group"></g>
+      </svg>
+      <div class="spine-card-label" id="pitch-label">PITCH --°</div>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total Samples</div>
+      <div class="stat-value" id="stat-total">0</div>
+      <div class="stat-unit">events recorded</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Slouch Events</div>
+      <div class="stat-value" style="color:var(--bad)" id="stat-bad">0</div>
+      <div class="stat-unit">poor posture detected</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Session Score</div>
+      <div class="stat-value" style="color:var(--good)" id="stat-score">100</div>
+      <div class="stat-unit">posture quality %</div>
+    </div>
+  </div>
+
+  <div class="meter-card">
+    <div class="meter-header">
+      <div class="meter-title">Slouch Rate</div>
+      <div class="meter-pct"><span id="meter-val">0</span>%</div>
+    </div>
+    <div class="meter-track">
+      <div class="meter-fill" id="meter-fill" style="width:0%"></div>
+    </div>
+    <div class="meter-ticks">
+      <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
+    </div>
+  </div>
+
+  <div class="timeline-card">
+    <div class="timeline-header">
+      <div class="timeline-title">Event History</div>
+      <div class="timeline-legend">
+        <span><span class="legend-dot" style="background:#86efac"></span>Good</span>
+        <span><span class="legend-dot" style="background:#fca5a5"></span>Slouch</span>
+      </div>
+    </div>
+    <div class="timeline-bars" id="timeline"></div>
+  </div>
+
+  <footer>
+    <span>PostureOS · Martha's Vineyard</span>
+    <span id="last-update">Awaiting data<span class="blink">_</span></span>
+    <span>System OK</span>
+  </footer>
+
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">Your Avatar</div>
+    <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+  </div>
+
+  <div class="picker-section">
+    <div class="picker-label">Gender</div>
+    <div class="picker-options" id="gender-options">
+      <button class="pick-btn selected" data-gender="neutral">🧍</button>
+      <button class="pick-btn" data-gender="woman">🧍‍♀️</button>
+      <button class="pick-btn" data-gender="man">🧍‍♂️</button>
+    </div>
+  </div>
+
+  <div class="picker-section">
+    <div class="picker-label">Skin Tone</div>
+    <div class="picker-options" id="tone-options">
+      <button class="pick-btn selected" data-tone="">🟡</button>
+      <button class="pick-btn" data-tone="🏻">🏻</button>
+      <button class="pick-btn" data-tone="🏼">🏼</button>
+      <button class="pick-btn" data-tone="🏽">🏽</button>
+      <button class="pick-btn" data-tone="🏾">🏾</button>
+      <button class="pick-btn" data-tone="🏿">🏿</button>
+    </div>
+  </div>
+
+  <div class="preview-area">
+    <div class="preview-emoji" id="preview-emoji">🧍</div>
+    <div class="preview-label">YOUR AVATAR</div>
+  </div>
+</div>
+
+<script>
+  const eventHistory = [];
+  let selectedGender = 'neutral';
+  let selectedTone = '';
+  let currentlyGood = true;
+
+  const genderSuffix = {
+    neutral: '',
+    woman: '\u200D\u2640\uFE0F',
+    man: '\u200D\u2642\uFE0F'
+  };
+
+  function buildEmoji(gender, tone) {
+    return '🧍' + tone + genderSuffix[gender];
+  }
+
+  function updatePreview() {
+    const emoji = buildEmoji(selectedGender, selectedTone);
+    document.getElementById('preview-emoji').textContent = emoji;
+    document.getElementById('trigger-emoji').textContent = emoji;
+    updatePostureIcon();
+  }
+
+  function updatePostureIcon() {
+    document.getElementById('posture-icon').textContent =
+      currentlyGood ? buildEmoji(selectedGender, selectedTone) : '🫠';
+  }
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('open');
+  }
+
+  document.getElementById('gender-options').addEventListener('click', e => {
+    const btn = e.target.closest('.pick-btn');
+    if (!btn) return;
+    document.querySelectorAll('#gender-options .pick-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedGender = btn.dataset.gender;
+    updatePreview();
+  });
+
+  document.getElementById('tone-options').addEventListener('click', e => {
+    const btn = e.target.closest('.pick-btn');
+    if (!btn) return;
+    document.querySelectorAll('#tone-options .pick-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedTone = btn.dataset.tone;
+    updatePreview();
+  });
+
+  function drawSpine(pitch, isGood) {
+    const g = document.getElementById('spine-group');
+    g.innerHTML = '';
+    const count = 7;
+    const tilt = Math.max(-20, Math.min(20, pitch * 1.2));
+    for (let i = 0; i < count; i++) {
+      const yBase = 10 + i * 26;
+      const offset = (tilt / count) * i;
+      const color = isGood ? '#00a651' : (i > 3 ? '#e8173a' : '#f59e0b');
+      const opacity = 0.35 + (i / count) * 0.65;
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', 20 + offset);
+      rect.setAttribute('y', yBase);
+      rect.setAttribute('width', 40);
+      rect.setAttribute('height', 18);
+      rect.setAttribute('rx', 4);
+      rect.setAttribute('fill', color);
+      rect.setAttribute('opacity', opacity);
+      g.appendChild(rect);
+      if (i < count - 1) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        const nextOffset = (tilt / count) * (i + 1);
+        line.setAttribute('x1', 40 + offset); line.setAttribute('y1', yBase + 18);
+        line.setAttribute('x2', 40 + nextOffset); line.setAttribute('y2', yBase + 26);
+        line.setAttribute('stroke', color); line.setAttribute('stroke-width', 2);
+        line.setAttribute('opacity', 0.4);
+        g.appendChild(line);
+      }
+    }
+  }
+
+  function updateTimeline() {
+    const container = document.getElementById('timeline');
+    container.innerHTML = '';
+    eventHistory.slice(-50).forEach(h => {
+      const bar = document.createElement('div');
+      bar.className = 'tbar ' + (h.good ? 'good' : 'bad');
+      bar.style.height = Math.round(30 + Math.random() * 70) + '%';
+      bar.setAttribute('data-tip', h.good ? 'Good' : 'Slouch');
+      container.appendChild(bar);
+    });
+  }
+
+  async function fetchStats() {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/stats");
+      if (!res.ok) throw new Error('bad');
+      const data = await res.json();
+      if (data.message === "no data yet") return;
+
+      document.getElementById('stat-total').textContent = data.total_events;
+      document.getElementById('stat-bad').textContent = data.bad_events;
+
+      const score = Math.round(100 - data.percent_bad);
+      const scoreEl = document.getElementById('stat-score');
+      scoreEl.textContent = score;
+      scoreEl.style.color = score > 75 ? 'var(--good)' : score > 40 ? 'var(--warn)' : 'var(--bad)';
+
+      const pct = Math.round(data.percent_bad);
+      document.getElementById('meter-val').textContent = pct;
+      const fill = document.getElementById('meter-fill');
+      fill.style.width = pct + '%';
+      fill.className = 'meter-fill' + (pct > 66 ? ' high' : pct > 33 ? ' mid' : '');
+
+      currentlyGood = data.current_posture === "Good";
+      const pv = document.getElementById('posture-value');
+      pv.textContent = currentlyGood ? "GOOD" : "POOR";
+      pv.className = 'posture-value ' + (currentlyGood ? 'good' : 'poor');
+
+      const card = document.getElementById('posture-card');
+      card.className = 'posture-card ' + (currentlyGood ? 'good' : 'poor');
+
+      updatePostureIcon();
+
+      document.getElementById('alert-banner').className =
+        'alert-banner' + (currentlyGood ? '' : ' visible');
+
+      const fakePitch = currentlyGood ? 2 : 12;
+      drawSpine(fakePitch, currentlyGood);
+      document.getElementById('pitch-label').textContent = 'PITCH ' + fakePitch + '°';
+
+      eventHistory.push({ good: currentlyGood });
+      updateTimeline();
+
+      const now = new Date();
+      document.getElementById('last-update').innerHTML =
+        `Updated ${now.toLocaleTimeString()}<span class="blink">_</span>`;
+
+      document.getElementById('conn-dot').style.cssText = 'background:var(--good)';
+      document.getElementById('conn-label').textContent = 'LIVE';
+
+    } catch (e) {
+      document.getElementById('conn-dot').style.cssText = 'background:var(--bad)';
+      document.getElementById('conn-label').textContent = 'OFFLINE';
+    }
+  }
+
+  drawSpine(0, true);
+  updatePreview();
+  fetchStats();
+  setInterval(fetchStats, 2000);
+</script>
+</body>
+</html>

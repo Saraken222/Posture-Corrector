@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PostureOS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080c10;
+      --panel: #0d1520;
+      --border: #1a2d45;
+      --accent: #00e5ff;
+      --good: #39ff14;
+      --bad: #ff3c5a;
+      --warn: #ffaa00;
+      --text: #c8dff0;
+      --muted: #3a5a78;
+      --mono: 'Share Tech Mono', monospace;
+      --display: 'Bebas Neue', cursive;
+      --body: 'DM Sans', sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--body);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,229,255,0.015) 2px, rgba(0,229,255,0.015) 4px);
+      pointer-events: none;
+      z-index: 100;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+    .logo { display: flex; flex-direction: column; }
+    .logo-title {
+      font-family: var(--display);
+      font-size: 42px;
+      letter-spacing: 4px;
+      color: var(--accent);
+      text-shadow: 0 0 20px rgba(0,229,255,0.5);
+      line-height: 1;
+    }
+    .logo-sub {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 3px;
+    }
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,229,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 8px 18px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--muted);
+    }
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--good);
+      box-shadow: 0 0 8px var(--good);
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* AVATAR PICKER */
+    .avatar-picker {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 20px 28px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .picker-group { display: flex; flex-direction: column; gap: 10px; }
+    .picker-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .picker-options { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pick-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 5px 9px;
+      font-size: 20px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      line-height: 1.2;
+    }
+    .pick-btn:hover { border-color: var(--accent); background: rgba(0,229,255,0.06); }
+    .pick-btn.selected {
+      border-color: var(--accent);
+      background: rgba(0,229,255,0.12);
+      box-shadow: 0 0 8px rgba(0,229,255,0.15);
+    }
+    .picker-divider { width: 1px; height: 56px; background: var(--border); align-self: center; }
+    .preview-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+    }
+    .preview-emoji { font-size: 44px; line-height: 1; }
+    .preview-label { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 2px; }
+
+    /* HERO */
+    .hero { display: flex; gap: 24px; margin-bottom: 24px; }
+    .posture-card {
+      flex: 1;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 240px;
+    }
+    .posture-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(0,229,255,0.06) 0%, transparent 70%);
+    }
+    .posture-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .posture-value {
+      font-family: var(--display);
+      font-size: 80px;
+      letter-spacing: 6px;
+      line-height: 1;
+      transition: color 0.5s, text-shadow 0.5s;
+    }
+    .posture-value.good { color: var(--good); text-shadow: 0 0 40px rgba(57,255,20,0.4); }
+    .posture-value.poor { color: var(--bad); text-shadow: 0 0 40px rgba(255,60,90,0.4); animation: shake 0.3s infinite; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-2px); }
+      75% { transform: translateX(2px); }
+    }
+    .posture-icon { font-size: 48px; margin-bottom: 12px; }
+
+    .spine-card {
+      width: 160px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .spine-label { font-family: var(--mono); font-size: 9px; letter-spacing: 3px; color: var(--muted); }
+    .spine-svg { width: 80px; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.8s ease;
+    }
+    .stat-card.loaded::after { transform: scaleX(1); }
+    .stat-label { font-family: var(--mono); font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; }
+    .stat-value { font-family: var(--display); font-size: 52px; letter-spacing: 2px; line-height: 1; color: var(--accent); }
+    .stat-unit { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    .meter-card { background: var(--panel); border: 1px solid var(--border); border-radius: 4px; padding: 28px; margin-bottom: 24px; }
+    .meter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .meter-title { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+    .meter-pct { font-family: var(--display); font-size: 28px; color: var(--accent); }
+    .meter-track { height: 24px; background: rgba(255,255,255,0.04); border-radius: 2px; overflow: hidden; border: 1px solid var(--border); }
+    .meter-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.8s cubic-bezier(0.4,0,0.2,1), background 0.5s;
+      position: relative;
+      background: linear-gradient(90deg, var(--good), var(--warn));
+    }
+    .meter-fill.high { background: linear-gradient(90deg, var(--warn), var(--bad)); }
+    .meter-fill::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; bottom: 0;
+      width: 40px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15));
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+    .meter-ticks { display: flex; justify-content: space-between; margin-top: 8px; font-family: var(--mono); font-size: 9px; color: var(--muted); }
+
+    .timeline-card { background: var(--panel); border: 1px solid var(--border); border-radius: 4px; padding: 28px; margin-bottom: 24px; }
+    .timeline-title { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 20px; }
+    .timeline-bars { display: flex; align-items: flex-end; gap: 4px; height: 80px; }
+    .tbar { flex: 1; border-radius: 2px 2px 0 0; transition: height 0.4s ease; min-height: 4px; cursor: pointer; position: relative; }
+    .tbar:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--text);
+      padding: 4px 8px;
+      white-space: nowrap;
+      border-radius: 2px;
+      pointer-events: none;
+    }
+    .tbar.good { background: rgba(57,255,20,0.5); }
+    .tbar.bad { background: rgba(255,60,90,0.6); }
+
+    footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 16px; font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 2px; }
+    .blink { animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .corner { position: absolute; width: 10px; height: 10px; border-color: var(--accent); border-style: solid; opacity: 0.4; }
+    .corner.tl { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
+    .corner.tr { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
+    .corner.bl { bottom: 8px; left: 8px; border-width: 0 0 1px 1px; }
+    .corner.br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+    .alert-banner { display: none; background: rgba(255,60,90,0.08); border: 1px solid rgba(255,60,90,0.4); border-radius: 4px; padding: 12px 20px; font-family: var(--mono); font-size: 11px; letter-spacing: 2px; color: var(--bad); text-align: center; margin-bottom: 20px; }
+    .alert-banner.visible { display: block; }
+
+    .avatar-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,229,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  cursor: pointer;
+  margin-bottom: 24px;
+  transition: border-color 0.2s;
+}
+.avatar-trigger:hover { border-color: var(--accent); color: var(--accent); }
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+}
+.sidebar-overlay.open { display: block; }
+
+.sidebar {
+  position: fixed;
+  top: 0; right: -300px;
+  width: 280px;
+  height: 100vh;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  z-index: 201;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.sidebar.open { right: 0; }
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sidebar-title {
+  font-family: var(--display);
+  font-size: 28px;
+  letter-spacing: 4px;
+  color: var(--accent);
+}
+.sidebar-close {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 14px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.sidebar-close:hover { border-color: var(--accent); color: var(--accent); }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo">
+      <div class="logo-title">POSTURE OS</div>
+      <div class="logo-sub">Spinal Intelligence System v1.0</div>
+    </div>
+    <div class="status-pill">
+      <div class="status-dot" id="conn-dot"></div>
+      <span id="conn-label">LIVE FEED</span>
+    </div>
+  </header>
+
+  <!-- replace the entire <div class="avatar-picker">...</div> with this -->
+<button class="avatar-trigger" id="avatar-trigger" onclick="toggleSidebar()">
+  <span id="trigger-emoji">🧍</span>
+  <span>CHOOSE YOUR AVATAR</span>
+</button>
+
+  
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">AVATAR</div>
+    <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+  </div>
+  <div class="picker-group">
+    <div class="picker-label">Gender</div>
+    <div class="picker-options" id="gender-options">
+      <button class="pick-btn selected" data-gender="neutral">🧍</button>
+      <button class="pick-btn" data-gender="woman">🧍‍♀️</button>
+      <button class="pick-btn" data-gender="man">🧍‍♂️</button>
+    </div>
+  </div>
+  <div class="picker-group">
+    <div class="picker-label">Skin Tone</div>
+    <div class="picker-options" id="tone-options">
+      <button class="pick-btn selected" data-tone="">🟡</button>
+      <button class="pick-btn" data-tone="🏻">🏻</button>
+      <button class="pick-btn" data-tone="🏼">🏼</button>
+      <button class="pick-btn" data-tone="🏽">🏽</button>
+      <button class="pick-btn" data-tone="🏾">🏾</button>
+      <button class="pick-btn" data-tone="🏿">🏿</button>
+    </div>
+  </div>
+  <div class="preview-area">
+    <div class="preview-emoji" id="preview-emoji">🧍</div>
+    <div class="preview-label">YOUR AVATAR</div>
+  </div>
+</div>
+  </div>
+
+  <div class="alert-banner" id="alert-banner">⚠ POOR POSTURE DETECTED — REALIGN SPINE</div>
+
+  <div class="hero">
+    <div class="posture-card">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="posture-label">Current Status</div>
+      <div class="posture-icon" id="posture-icon">🧍</div>
+      <div class="posture-value good" id="posture-value">GOOD</div>
+    </div>
+    <div class="spine-card">
+      <div class="spine-label">SPINE MODEL</div>
+      <svg class="spine-svg" viewBox="0 0 80 200" id="spine-svg" xmlns="http://www.w3.org/2000/svg">
+        <g id="spine-group"></g>
+      </svg>
+      <div class="spine-label" id="pitch-label">PITCH: --°</div>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card" id="sc-total">
+      <div class="corner tl"></div>
+      <div class="stat-label">Total Events</div>
+      <div class="stat-value" id="stat-total">0</div>
+      <div class="stat-unit">samples</div>
+    </div>
+    <div class="stat-card" id="sc-bad">
+      <div class="corner tl"></div>
+      <div class="stat-label">Slouch Events</div>
+      <div class="stat-value" style="color:var(--bad)" id="stat-bad">0</div>
+      <div class="stat-unit">detected</div>
+    </div>
+    <div class="stat-card" id="sc-pct">
+      <div class="corner tl"></div>
+      <div class="stat-label">Session Score</div>
+      <div class="stat-value" style="color:var(--good)" id="stat-score">100</div>
+      <div class="stat-unit">posture quality %</div>
+    </div>
+  </div>
+
+  <div class="meter-card">
+    <div class="meter-header">
+      <div class="meter-title">Slouch Rate</div>
+      <div class="meter-pct"><span id="meter-val">0</span>%</div>
+    </div>
+    <div class="meter-track">
+      <div class="meter-fill" id="meter-fill" style="width:0%"></div>
+    </div>
+    <div class="meter-ticks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+  </div>
+
+  <div class="timeline-card">
+    <div class="timeline-title">Event History (last 40)</div>
+    <div class="timeline-bars" id="timeline"></div>
+  </div>
+
+  <footer>
+    <span>POSTURE OS · MARTHA'S VINEYARD NODE</span>
+    <span id="last-update">AWAITING DATA<span class="blink">_</span></span>
+    <span>SYS OK</span>
+  </footer>
+</div>
+
+<script>
+  
+  const eventHistory = [];
+  let selectedGender = 'neutral';
+  let selectedTone = '';
+  let currentlyGood = true;
+
+  // Base person codepoint is U+1F9CD (🧍)
+  // Skin tone modifiers: inserted right after base char, before ZWJ+gender
+  const genderSuffix = {
+    neutral: '',
+    woman:   '\u200D\u2640\uFE0F',
+    man:     '\u200D\u2642\uFE0F'
+  };
+
+  function buildEmoji(gender, tone) {
+    // 🧍 + [tone modifier] + [ZWJ + gender sign + VS16]
+    return '🧍' + tone + genderSuffix[gender];
+  }
+
+  function updatePreview() {
+    const emoji = buildEmoji(selectedGender, selectedTone);
+    document.getElementById('preview-emoji').textContent = emoji;
+    document.getElementById('trigger-emoji').textContent = emoji;
+    updatePostureIcon();
+  }
+
+  function updatePostureIcon() {
+    document.getElementById('posture-icon').textContent =
+      currentlyGood ? buildEmoji(selectedGender, selectedTone) : '🫠';
+  }
+
+  document.getElementById('gender-options').addEventListener('click', e => {
+    const btn = e.target.closest('.pick-btn');
+    if (!btn) return;
+    document.querySelectorAll('#gender-options .pick-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedGender = btn.dataset.gender;
+    updatePreview();
+  });
+
+  document.getElementById('tone-options').addEventListener('click', e => {
+    const btn = e.target.closest('.pick-btn');
+    if (!btn) return;
+    document.querySelectorAll('#tone-options .pick-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedTone = btn.dataset.tone;
+    updatePreview();
+  });
+
+  function drawSpine(pitch, isGood) {
+    const g = document.getElementById('spine-group');
+    g.innerHTML = '';
+    const count = 7;
+    const tilt = Math.max(-20, Math.min(20, pitch * 1.2));
+    for (let i = 0; i < count; i++) {
+      const yBase = 10 + i * 26;
+      const offset = (tilt / count) * i;
+      const color = isGood ? '#39ff14' : (i > 3 ? '#ff3c5a' : '#ffaa00');
+      const opacity = 0.4 + (i / count) * 0.6;
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', 20 + offset);
+      rect.setAttribute('y', yBase);
+      rect.setAttribute('width', 40);
+      rect.setAttribute('height', 16);
+      rect.setAttribute('rx', 3);
+      rect.setAttribute('fill', color);
+      rect.setAttribute('opacity', opacity);
+      g.appendChild(rect);
+      if (i < count - 1) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        const nextOffset = (tilt / count) * (i + 1);
+        line.setAttribute('x1', 40 + offset); line.setAttribute('y1', yBase + 16);
+        line.setAttribute('x2', 40 + nextOffset); line.setAttribute('y2', yBase + 26);
+        line.setAttribute('stroke', color); line.setAttribute('stroke-width', 2);
+        line.setAttribute('opacity', 0.3);
+        g.appendChild(line);
+      }
+    }
+  }
+
+  function updateTimeline() {
+    const container = document.getElementById('timeline');
+    container.innerHTML = '';
+    eventHistory.slice(-40).forEach(h => {
+      const bar = document.createElement('div');
+      bar.className = 'tbar ' + (h.good ? 'good' : 'bad');
+      bar.style.height = Math.round(20 + Math.random() * 80) + '%';
+      bar.setAttribute('data-tip', h.good ? 'GOOD' : 'SLOUCH');
+      container.appendChild(bar);
+    });
+  }
+
+  async function fetchStats() {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/stats");
+      if (!res.ok) throw new Error('bad response');
+      const data = await res.json();
+      if (data.message === "no data yet") return;
+
+      document.getElementById('stat-total').textContent = data.total_events;
+      document.getElementById('stat-bad').textContent = data.bad_events;
+      const score = Math.round(100 - data.percent_bad);
+      const scoreEl = document.getElementById('stat-score');
+      scoreEl.textContent = score;
+      scoreEl.style.color = score > 75 ? 'var(--good)' : score > 40 ? 'var(--warn)' : 'var(--bad)';
+
+      const pct = Math.round(data.percent_bad);
+      document.getElementById('meter-val').textContent = pct;
+      const fill = document.getElementById('meter-fill');
+      fill.style.width = pct + '%';
+      fill.className = 'meter-fill' + (pct > 50 ? ' high' : '');
+
+      currentlyGood = data.current_posture === "Good";
+      const pv = document.getElementById('posture-value');
+      pv.textContent = currentlyGood ? "GOOD" : "POOR";
+      pv.className = 'posture-value ' + (currentlyGood ? 'good' : 'poor');
+      updatePostureIcon();
+
+      document.getElementById('alert-banner').className = 'alert-banner' + (currentlyGood ? '' : ' visible');
+
+      const fakePitch = currentlyGood ? 2 : 12;
+      drawSpine(fakePitch, currentlyGood);
+      document.getElementById('pitch-label').textContent = 'PITCH: ' + fakePitch + '°';
+
+      ['sc-total','sc-bad','sc-pct'].forEach(id => document.getElementById(id).classList.add('loaded'));
+
+      eventHistory.push({ good: currentlyGood });
+      updateTimeline();
+
+      const now = new Date();
+      document.getElementById('last-update').innerHTML = `UPDATED ${now.toLocaleTimeString()}<span class="blink">_</span>`;
+      document.getElementById('conn-dot').style.cssText = 'background:var(--good);box-shadow:0 0 8px var(--good)';
+      document.getElementById('conn-label').textContent = 'LIVE FEED';
+
+    } catch (e) {
+      document.getElementById('conn-dot').style.cssText = 'background:var(--bad);box-shadow:0 0 8px var(--bad)';
+      document.getElementById('conn-label').textContent = 'DISCONNECTED';
+    }
+  }
+
+  drawSpine(0, true);
+  updatePreview();
+  fetchStats();
+  setInterval(fetchStats, 2000);
+
+  function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+</script>
+</body>
+</html>
