@@ -46,4 +46,9 @@ Simulates IMU sensor data by generating randomized pitch and Y-axis values, and 
 
 ### Dashboard (index.html)
 A browser dashboard that polls the backend every 2 seconds and shows current posture status, session stats, slouch rate, and event history.
-UI generated with Claude AI (Anthropic).
+UI generated with Claude.
+
+### To Run
+1. In terminal start backend by 'uvicorn main:app --reload'
+2. Open 2nd terminal start python simulator script by 'python3 send_events.py'
+3. Open 'index.html' in browser
