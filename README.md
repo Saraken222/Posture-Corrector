@@ -49,6 +49,11 @@ A browser dashboard that polls the backend every 2 seconds and shows current pos
 UI generated with Claude.
 
 ### To Run
-1. In terminal start backend by 'uvicorn main:app --reload'
-2. Open 2nd terminal start python simulator script by 'python3 send_events.py'
-3. Open 'index.html' in browser
+1. In terminal go to backend/, activate venv and start the server
+    python3 -m venv venv
+    source venv/bin/activate
+    uvicorn main:app --reload
+2. Open 2nd terminal go to simulator/, activate venv and start python simulator script
+    source ../backend/venv/bin/activate
+    python send_events.py
+3. Open browser and go to http://127.0.0.1:8000
