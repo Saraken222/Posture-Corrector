@@ -1,15 +1,11 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 
 app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app.mount("/static", StaticFiles(directory="../frontend"), name="static")
 events= []
 
 class PostureEvent(BaseModel):
@@ -19,7 +15,7 @@ class PostureEvent(BaseModel):
 
 @app.get("/")
 def root():
-    return {"message": "Posture API running"}
+    return FileResponse("../frontend/index.html")
 
 @app.post("/events")
 def update_event(event: PostureEvent):

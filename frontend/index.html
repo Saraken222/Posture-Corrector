@@ -559,7 +559,7 @@
   </div>
 
   <footer>
-    <span>PostureOS · Martha's Vineyard</span>
+    <span>PostureOS · Sara K</span>
     <span id="last-update">Awaiting data<span class="blink">_</span></span>
     <span>System OK</span>
   </footer>
@@ -697,7 +697,7 @@
 
   async function fetchStats() {
     try {
-      const res = await fetch("http://127.0.0.1:8000/stats");
+      const res = await fetch("/stats");
       if (!res.ok) throw new Error('bad');
       const data = await res.json();
       if (data.message === "no data yet") return;

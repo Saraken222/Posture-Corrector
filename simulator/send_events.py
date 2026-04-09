@@ -12,7 +12,7 @@ down_threshold = -0.7
 tilt_baseline = 0.0
 y_baseline = 9.8
 
-while (1):
+while True:
     pitch = round(random.uniform(0, 5), 2)
     y_value = round(random.uniform(8.5, 10.2), 2)
 
